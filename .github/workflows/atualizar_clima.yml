@@ -1,0 +1,80 @@
+name: Atualizar Clima
+
+# Executa a cada 2 minutos
+on:
+  schedule:
+    - cron: "*/2 * * * *"
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  atualizar-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Gerar arquivo clima_alagoas.json com dados reais
+        env:
+          OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
+        run: |
+          python - <<EOF
+          import json
+          import requests
+
+          cidades = ["Maceió,BR", "Arapiraca,BR", "Delmiro Gouveia,BR", "Penedo,BR"]
+          dados = []
+
+          for cidade in cidades:
+              url = f"http://api.openweathermap.org/data/2.5/weather?q={cidade}&appid={ENV['OPENWEATHER_KEY']}&units=metric&lang=pt_br"
+              resp = requests.get(url)
+              if resp.status_code == 200:
+                  info = resp.json()
+                  nome = info["name"]
+                  temp = round(info["main"]["temp"])
+                  weather_icon = info["weather"][0]["icon"]  # Ex: "01d", "02n", etc.
+                  
+                  # Mapear ícone OpenWeather para ícones do overlay
+                  mapping = {
+                      "01d": "sol", "01n": "lua",
+                      "02d": "sol_nuvens", "02n": "lua_nuvens",
+                      "03d": "nublado", "03n": "nublado",
+                      "04d": "nublado", "04n": "nublado",
+                      "09d": "chuva", "09n": "chuva",
+                      "10d": "chuva_sol", "10n": "chuva_lua",
+                      "11d": "trovao", "11n": "trovao",
+                      "13d": "neve", "13n": "neve",
+                      "50d": "neblina", "50n": "neblina"
+                  }
+                  icone = mapping.get(weather_icon, "sol")
+                  dados.append({
+                      "nome": nome,
+                      "temp": str(temp),
+                      "icone": icone
+                  })
+              else:
+                  # Caso a API falhe
+                  dados.append({
+                      "nome": cidade.split(",")[0],
+                      "temp": "--",
+                      "icone": "err"
+                  })
+
+          with open("clima_alagoas.json", "w", encoding="utf-8") as f:
+              json.dump(dados, f, ensure_ascii=False, indent=2)
+          EOF
+
+      - name: Comitar alterações
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add clima_alagoas.json
+          git commit -m "Atualização automática do clima real" || echo "Sem alterações"
+          git push
