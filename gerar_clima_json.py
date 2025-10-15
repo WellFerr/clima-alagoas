@@ -2,7 +2,7 @@ import requests
 import json
 from datetime import datetime
 
-API_KEY = "SUA_API_KEY_AQUI"  # Substitua pela sua chave da OpenWeather
+API_KEY = "0d58ccefba2ae9d5e16aca126eed7f83"  # Substitua pela sua chave da OpenWeather
 CIDADES = [
     {"nome": "Maceió", "query": "Maceio,BR"},
     {"nome": "Arapiraca", "query": "Arapiraca,BR"},
