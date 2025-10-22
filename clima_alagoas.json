@@ -1,9 +1,0 @@
-{
-  "cidades": [
-    { "nome": "Maceió", "temp": "28.2", "icone": "01d", "descricao": "Céu limpo" },
-    { "nome": "Arapiraca", "temp": "26.7", "icone": "02d", "descricao": "Sol com nuvens" },
-    { "nome": "Delmiro Gouveia", "temp": "30.4", "icone": "03d", "descricao": "Quente e seco" },
-    { "nome": "Penedo", "temp": "27.8", "icone": "04d", "descricao": "Nublado" }
-  ],
-  "atualizado_em": "2025-10-15T16:00:00Z"
-}
